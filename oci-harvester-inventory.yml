@@ -1,0 +1,51 @@
+- name: Create harvester inventory resources types
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
+  - name: Include vars
+    include_vars: oci-harvester-vars.yml
+  
+  - name: Get list of Resources Types on OCI
+    oci_resource_search_resource_type_facts:
+    register: resource_types_out
+
+  - name: Write down resources
+    template:
+      src: write-down-resources_types.j2
+      dest: "./output/resources-types-inventory.yml"
+    when:
+      - " (resource_types_out.resource_types | length) > 0 "
+
+- name: Create harvester inventory comparments
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
+  - name: Include vars
+    include_vars: oci-harvester-vars.yml
+
+  - name: List compartments of tenancy
+    collections:
+      - oracle.oci
+    oci_identity_compartment_facts:
+      parent_compartment_id: "{{ tenancy_ocid }}"
+      access_level: ANY
+      compartment_id_in_subtree: true
+      lifecycle_state: "ACTIVE"
+    register: compartment_list_out
+
+  - name: print
+    ansible.builtin.debug:
+      msg: "{{compartment_list_out.compartments}}"
+
+  - name: Write down compartments
+    template:
+      src: write-down-compartments.j2
+      dest: "./output/compartments-inventory.yml"
+    when:
+      - " (compartment_list_out.compartments | length) > 0 "

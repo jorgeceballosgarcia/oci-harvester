@@ -1,0 +1,5 @@
+resources_types_search:
+{% for resource_type_item in resource_types_out.resource_types %}
+    - name: {{ resource_type_item.name }}
+      search: true
+{% endfor %}

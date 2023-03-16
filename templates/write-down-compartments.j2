@@ -1,0 +1,7 @@
+compartment_search:
+{% for compartment_item in compartment_list_out.compartments %}
+    - name: {{ compartment_item.name }}
+      ocid: {{ compartment_item.id }}
+      parent_ocid: {{ compartment_item.compartment_id}}
+      search: true
+{% endfor %}

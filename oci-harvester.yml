@@ -1,0 +1,26 @@
+- name: Harvester OCI
+  hosts: localhost
+  gather_facts: true
+  collections:
+    - oracle.oci
+  tasks:
+
+  - name: Include vars
+    include_vars: oci-harvester-vars.yml
+  
+  - name: Include inventory resources types to search 
+    ansible.builtin.include_vars: ./output/resources-types-inventory.yml
+
+  - name: Include inventory comparments to search 
+    ansible.builtin.include_vars: ./output/compartments-inventory.yml
+
+  - name: Invoke Role oci-resources-by-type
+    include_role: 
+      name: oci-resources-by-type
+    loop: "{{ resources_types_search }}"
+    loop_control:
+      loop_var:  resource_type_item
+    when:
+      - "resources_types_search is defined"
+      - "compartment_search is defined "
+      - "resource_type_item.search"

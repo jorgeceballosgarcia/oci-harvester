@@ -1,0 +1,58 @@
+- name: List resources with type "{{ resource_type_item.name }}" on compartment "{{compartment_item.name}}"
+  collections:
+    - oracle.oci
+  oci_resource_search_resource_facts:
+    query: "query {{ resource_type_item.name }} resources where (lifeCycleState != 'DELETED' || lifeCycleState != 'TERMINATED') && (compartmentId = '{{ compartment_item.ocid }}')"
+    type: Structured
+  register: query_all
+
+# - name: Print
+#   ansible.builtin.debug:
+#     msg: "{{query_all}}"
+#   when:
+#     - " (query_all.resources | length) > 0 "
+
+- name: Create "./output/{{ resource_type_item.name }}.csv"
+  ansible.builtin.file:
+    path: "./output/{{ resource_type_item.name }}.csv"
+    state: touch
+  when:
+    - " (query_all.resources | length) > 0 "  
+
+- name: Write down resources
+  lineinfile: 
+    dest: "./output/{{ resource_type_item.name }}.csv"
+    line: "{{ resource_type_item.name }};{{compartment_item.name}};{{resource_item.display_name}};{{resource_item.identifier}};{{compartment_item.ocid}}"
+  loop: "{{ query_all.resources }}"
+  loop_control:
+    loop_var: "resource_item"
+  when:
+    - " (query_all.resources | length) > 0 "  
+
+# - name: Write down resources
+#   template:
+#     src: write-down-resources.j2
+#     dest: "./output/{{ resource_type_item.name }}_{{compartment_item.name}}.csv"
+#   when:
+#     - " (query_all.resources | length) > 0 "
+
+# - name: Concat files
+#   template:
+#     src: concat-files-resources.j2
+#     dest: "./output/{{ resource_type_item.name }}.csv"
+#   when:
+#     - " (query_all.resources | length) > 0 "
+
+# - name: Delete "./output/{{ resource_type_item.name }}_{{compartment_item.name}}.csv"
+#   ansible.builtin.file:
+#     path: "./output/{{ resource_type_item.name }}_{{compartment_item.name}}.csv"
+#     state: absent
+#   when:
+#     - " (query_all.resources | length) > 0 "
+
+# - name: print by type
+#   ansible.builtin.debug:
+#     msg: "{{resource_item.display_name}}"
+#   loop: "{{query_all.resources}}"
+#   loop_control:
+#     loop_var:  resource_item
