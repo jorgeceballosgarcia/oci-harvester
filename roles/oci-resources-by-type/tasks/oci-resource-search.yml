@@ -2,6 +2,7 @@
   collections:
     - oracle.oci
   oci_resource_search_resource_facts:
+    region: "{{ tenancy_region }}"
     query: "query {{ resource_type_item.name }} resources where (lifeCycleState != 'DELETED' || lifeCycleState != 'TERMINATED') && (compartmentId = '{{ compartment_item.ocid }}')"
     type: Structured
   register: query_all
@@ -12,16 +13,16 @@
 #   when:
 #     - " (query_all.resources | length) > 0 "
 
-- name: Create "./output/{{ resource_type_item.name }}.csv"
+- name: Create "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
   ansible.builtin.file:
-    path: "./output/{{ resource_type_item.name }}.csv"
+    path: "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
     state: touch
   when:
     - " (query_all.resources | length) > 0 "  
 
 - name: Write down resources
   lineinfile: 
-    dest: "./output/{{ resource_type_item.name }}.csv"
+    dest: "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
     line: "{{ resource_type_item.name }};{{compartment_item.name}};{{resource_item.display_name}};{{resource_item.identifier}};{{compartment_item.ocid}}"
   loop: "{{ query_all.resources }}"
   loop_control:

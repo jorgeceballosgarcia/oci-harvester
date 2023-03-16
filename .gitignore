@@ -1,3 +1,5 @@
 
-output/resources-types-inventory.yml
-output/compartments-inventory.yml
+output/resources-types-inventory*.yml
+output/compartments-inventory*.yml
+
+output/*.csv

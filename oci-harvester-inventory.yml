@@ -15,7 +15,7 @@
   - name: Write down resources
     template:
       src: write-down-resources_types.j2
-      dest: "./output/resources-types-inventory.yml"
+      dest: "./output/resources-types-inventory-{{ tenancy_region }}.yml"
     when:
       - " (resource_types_out.resource_types | length) > 0 "
 
@@ -33,19 +33,16 @@
     collections:
       - oracle.oci
     oci_identity_compartment_facts:
+      region: "{{ tenancy_region }}"
       parent_compartment_id: "{{ tenancy_ocid }}"
-      access_level: ANY
+      access_level: ACCESSIBLE
       compartment_id_in_subtree: true
       lifecycle_state: "ACTIVE"
     register: compartment_list_out
 
-  - name: print
-    ansible.builtin.debug:
-      msg: "{{compartment_list_out.compartments}}"
-
   - name: Write down compartments
     template:
       src: write-down-compartments.j2
-      dest: "./output/compartments-inventory.yml"
+      dest: "./output/compartments-inventory-{{ tenancy_region }}.yml"
     when:
       - " (compartment_list_out.compartments | length) > 0 "

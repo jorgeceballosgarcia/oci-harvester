@@ -9,10 +9,10 @@
     include_vars: oci-harvester-vars.yml
   
   - name: Include inventory resources types to search 
-    ansible.builtin.include_vars: ./output/resources-types-inventory.yml
+    ansible.builtin.include_vars: ./output/resources-types-inventory-{{ tenancy_region }}.yml
 
   - name: Include inventory comparments to search 
-    ansible.builtin.include_vars: ./output/compartments-inventory.yml
+    ansible.builtin.include_vars: ./output/compartments-inventory-{{ tenancy_region }}.yml
 
   - name: Invoke Role oci-resources-by-type
     include_role: 

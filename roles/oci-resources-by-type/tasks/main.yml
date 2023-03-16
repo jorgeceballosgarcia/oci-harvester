@@ -23,15 +23,15 @@
   when:
     - "compartment_item.search"
 
-- name: Check "./output/{{ resource_type_item.name }}.csv"
+- name: Check "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
   stat:
-    path: "./output/{{ resource_type_item.name }}.csv"
+    path: "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
   register: check_file
 
 - name: Write down resources
   lineinfile:
     insertbefore: BOF
-    dest: "./output/{{ resource_type_item.name }}.csv"
+    dest: "./output/{{ resource_type_item.name }}_{{ tenancy_region }}.csv"
     line: "RESOURCE_TYPE;COMPARTMENT_NAME;RESOURCE_NAME;RESOURCE_OCID;COMPARTMENT_OCID"
   when: 
     - "check_file.stat.exists"
